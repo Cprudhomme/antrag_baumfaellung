@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antrag auf Baumfällung</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF pour la génération de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- JSZip pour créer des fichiers ZIP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        /* Police Inter par défaut */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 py-10">
+
+    <div class="w-full max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-lg shadow-xl">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">Antrag auf Baumfällung</h1>
+
+        <form id="baum-form">
+            <div class="space-y-8">
+
+                <!-- Section: Antragsteller -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Antragsteller</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        
+                        <div>
+                            <label for="typ_antragstellers" class="block text-sm font-medium text-gray-700 mb-1">Typ des Antragstellers:</label>
+                            <select id="typ_antragstellers" name="typ_antragstellers" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="Grundstückseigentümer">Grundstückseigentümer</option>
+                                <option value="Nutzungsberechtigter">Nutzungsberechtigter (mit Erlaubnis des Grundstückseigentümers)</option>
+                                <option value="Bevollmächtigter">Bevollmächtigter des Grundstückseigentüme</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="name_antragsteller" class="block text-sm font-medium text-gray-700 mb-1">Name Antragsteller:</label>
+                            <input type="text" id="name_antragsteller" name="name_antragsteller" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="anschrift_antragsteller" class="block text-sm font-medium text-gray-700 mb-1">Anschrift Antragsteller:</label>
+                            <input type="text" id="anschrift_antragsteller" name="anschrift_antragsteller" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="telefon_antragsteller" class="block text-sm font-medium text-gray-700 mb-1">Telefon Antragsteller:</label>
+                            <input type="tel" id="telefon_antragsteller" name="telefon_antragsteller" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Grundstückseigentümer -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Grundstückseigentümer</legend>
+                    <p class="text-sm text-gray-500 mb-4">(Falls abweichend vom Antragsteller)</p>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        <div>
+                            <label for="name_eigentuemer" class="block text-sm font-medium text-gray-700 mb-1">Name Grundstückseigentümer:</label>
+                            <input type="text" id="name_eigentuemer" name="name_eigentuemer" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="anschrift_eigentuemer" class="block text-sm font-medium text-gray-700 mb-1">Anschrift Grundstückseigentümer:</label>
+                            <input type="text" id="anschrift_eigentuemer" name="anschrift_eigentuemer" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="telefon_eigentuemer" class="block text-sm font-medium text-gray-700 mb-1">Telefon Grundstückseigentümer:</label>
+                            <input type="tel" id="telefon_eigentuemer" name="telefon_eigentuemer" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Ort des Grundstücks 
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Ort (Grundstück)</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        <div>
+                            <label for="plz_grundstueck" class="block text-sm font-medium text-gray-700 mb-1">PLZ Grundstück:</label>
+                            <input type="text" id="plz_grundstueck" name="plz_grundstueck" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="strasse_grundstueck" class="block text-sm font-medium text-gray-700 mb-1">Straße/Hausnummer Grundstück:</label>
+                            <input type="text" id="strasse_grundstueck" name="strasse_grundstueck" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </fieldset>-->
+
+                <!-- Section: Grundstück  -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Ort (Grundstück Details)</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                         <div>
+                            <label for="plz_grundstueck" class="block text-sm font-medium text-gray-700 mb-1">PLZ Grundstück:</label>
+                            <input type="text" id="plz_grundstueck" name="plz_grundstueck" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="strasse_grundstueck" class="block text-sm font-medium text-gray-700 mb-1">Straße/Hausnummer Grundstück:</label>
+                            <input type="text" id="strasse_grundstueck" name="strasse_grundstueck" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="gemarkung" class="block text-sm font-medium text-gray-700 mb-1">Gemarkung:</label>
+                            <!-- Ajout de l'attribut list -->
+                            <input type="text" id="gemarkung" name="gemarkung" list="gemarkung-suggestions" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Geben Sie PLZ und Straße ein, um Vorschläge zu erhalten...">
+                            <!-- Datalist pour les suggestions -->
+                            <datalist id="gemarkung-suggestions"></datalist>
+                        </div>
+                        <div>
+                            <label for="fstk" class="block text-sm font-medium text-gray-700 mb-1">Flurstück:</label>
+                            <input type="text" id="fstk" name="fstk" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" >
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Section: Antrags-Objekt (Baum) -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Antrags-Objekt</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
+                        <div>
+                            <label for="baumart" class="block text-sm font-medium text-gray-700 mb-1">Baumart:</label>
+                            <input type="text" id="baumart" name="baumart" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="stammzahl" class="block text-sm font-medium text-gray-700 mb-1">Stammzahl (bei mehrstämmigen Bäumen):</label>
+                            <input type="number" id="stammzahl" name="stammzahl" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" min="1">
+                        </div>
+
+                        <!-- Wikidata Image Container -->
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Wikidata-Bilder (Beispiele):</label>
+                            <div id="wikidata_images_container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 border border-gray-200 rounded-md bg-gray-50 min-h-[100px] flex items-center justify-center">
+                                <p id="image_placeholder" class="text-sm text-gray-400 col-span-full text-center">Bitte geben Sie oben eine Baumart ein, um Bilder zu suchen.</p>
+                            </div>
+                        </div>
+                        <!-- fin wikidata -->
+                        
+                        <div class="sm:col-span-2">
+                            <label for="stammumfang" class="block text-sm font-medium text-gray-700 mb-1">Stammumfang (in cm, gemessen in 1m Höhe):</label>
+                            <input type="text" id="stammumfang" name="stammumfang" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label for="massnahme" class="block text-sm font-medium text-gray-700 mb-1">beabsichtigter Eingriff oder Maßnahme:</label>
+                            <select id="massnahme" name="massnahme" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="Fällung">Fällung</option>
+                                <option value="Einkürzung der Krone">Einkürzung der Krone</option>
+                                <option value="Auslichtung">Auslichtung</option>
+                                <option value="Kronenpflege">Kronenpflege</option>
+                                <option value="andere">andere</option>
+                            </select>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <label for="begruendung" class="block text-sm font-medium text-gray-700 mb-1">Begründung des Antrages:</label>
+                            <textarea id="begruendung" name="begruendung" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="(gesetzliche Vorschriften, Gefahren für Personen oder Sachen von erheblichen Wert, Krankheiten, Faulstellen, Beeinträchtigung des Grundstückes, Entwicklung der umgebenden Bäume, sonstige Gründe)"></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Erlaubnis -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Erlaubnis zur Ortsbesichtigung</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        <div>
+                            <label for="ortsbesichtigung" class="block text-sm font-medium text-gray-700 mb-1">Die Ortsbesichtigung durch Bedienstete der Stadtverwaltung ist möglich:</label>
+                            <select id="ortsbesichtigung" name="ortsbesichtigung" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="jederzeit">jederzeit</option>
+                                <option value="nach Voranmeldung/Terminabsprache">nach Voranmeldung/Terminabsprache</option>
+                            </select>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600">Ansprechpartner für Terminabsprache (falls abweichend):</p>
+                        
+                        <div>
+                            <label for="erlaubnis_name" class="block text-sm font-medium text-gray-700 mb-1">Name:</label>
+                            <input type="text" id="erlaubnis_name" name="erlaubnis_name" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="erlaubnis_anschrift" class="block text-sm font-medium text-gray-700 mb-1">Anschrift:</label>
+                            <input type="text" id="erlaubnis_anschrift" name="erlaubnis_anschrift" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="erlaubnis_telefon" class="block text-sm font-medium text-gray-700 mb-1">Telefon:</label>
+                            <input type="tel" id="erlaubnis_telefon" name="erlaubnis_telefon" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Antrag (Signature) -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Antrag</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
+                        <div>
+                            <label for="antrag_vom" class="block text-sm font-medium text-gray-700 mb-1">vom (Datum):</label>
+                            <input type="date" id="antrag_vom" name="antrag_vom" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="antrag_antragsteller" class="block text-sm font-medium text-gray-700 mb-1">Antragsteller (Unterschrift):</label>
+                            <input type="text" id="antrag_antragsteller" name="antrag_antragsteller" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Bitte hier Ihren Namen als Unterschrift eingeben">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section: Bauvorhaben -->
+                <fieldset class="border border-gray-300 p-6 rounded-md">
+                    <legend class="text-xl font-semibold text-gray-800 px-2">Bauvorhaben</legend>
+                    <div class="grid grid-cols-1 gap-6 mt-4">
+                        <div>
+                            <label for="bauvorhaben" class="block text-sm font-medium text-gray-700 mb-1">Bauvorhaben Bezeichnung:</label>
+                            <input type="text" id="bauvorhaben" name="bauvorhaben" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </fieldset>
+                
+            </div>
+
+            <!-- Bouton de soumission -->
+            <div class="mt-10">
+                <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white py-3 px-6 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-semibold text-lg transition duration-150 ease-in-out">
+                    Antrag einreichen
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Logique Wikidata (existante) ---
+            const baumartInput = document.getElementById('baumart');
+            const imagesContainer = document.getElementById('wikidata_images_container');
+            const imagePlaceholder = document.getElementById('image_placeholder');
+            let debounceTimer;
+
+            function debounce(func, delay) {
+                return function(...args) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        func.apply(this, args);
+                    }, delay);
+                }
+            }
+
+            async function fetchWikidataImages(searchTerm) {
+                if (searchTerm.trim().length < 3) {
+                    imagesContainer.innerHTML = '';
+                    imagesContainer.appendChild(imagePlaceholder);
+                    return;
+                }
+                imagesContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center">Suche Bilder...</p>';
+                try {
+                    const searchUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(searchTerm)}&language=de&format=json&origin=*&limit=1`;
+                    const searchResponse = await fetch(searchUrl);
+                    const searchData = await searchResponse.json();
+                    if (!searchData.search || searchData.search.length === 0) {
+                        imagesContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center">Keine Wikidata-Entität gefunden.</p>';
+                        return;
+                    }
+                    const entityId = searchData.search[0].id;
+                    const claimsUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${entityId}&props=claims&format=json&origin=*`;
+                    const claimsResponse = await fetch(claimsUrl);
+                    const claimsData = await claimsResponse.json();
+                    if (!claimsData.entities[entityId] || !claimsData.entities[entityId].claims) {
+                        imagesContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center">Entität hat keine Claims.</p>';
+                        return;
+                    }
+                    const claims = claimsData.entities[entityId].claims;
+                    
+
+                    if (!claims.P18 || claims.P18.length === 0) {
+                        imagesContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center">Keine Bilder (P18) für diese Entität gefunden.</p>';
+                        return;
+                    }
+                    const images = claims.P18;
+                    const imagesToDisplay = images.slice(0, 4);
+                    imagesContainer.innerHTML = '';
+                    imagesToDisplay.forEach(imageData => {
+                        const filename = imageData.mainsnak.datavalue.value;
+                        if (typeof filename === 'string') {
+                            const safeFilename = filename.replace(/ /g, '_');
+                            const imageUrl = `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(safeFilename)}?width=300`;
+                            const imgElement = document.createElement('img');
+                            imgElement.src = imageUrl;
+                            imgElement.alt = `Bild von ${searchTerm}`;
+                            imgElement.className = "w-full h-auto object-cover rounded-md shadow-md border border-gray-200";
+                            imgElement.onerror = () => { 
+                                imgElement.alt = "Bild konnte nicht geladen werden";
+                                imgElement.src = `https://placehold.co/300x200/eee/ccc?text=Fehler`; 
+                            };
+                            imagesContainer.appendChild(imgElement);
+                        }
+                    });
+                    if (imagesContainer.innerHTML === '') {
+                        imagesContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center">Bilder gefunden, aber nicht anzeigbar.</p>';
+                    }
+                } catch (error) {
+                    console.error("Fehler beim Abrufen von Wikidata-Bildern:", error);
+                    imagesContainer.innerHTML = '<p class="text-sm text-red-500 col-span-full text-center">Fehler beim Laden der Bilder.</p>';
+                }
+            }
+            const debouncedFetch = debounce(fetchWikidataImages, 500);
+            baumartInput.addEventListener('keyup', (e) => {
+                debouncedFetch(e.target.value);
+            });
+
+            // --- Suggestions pour Gemarkung (Nominatim) ---
+            const plzInput = document.getElementById('plz_grundstueck');
+            const strasseInput = document.getElementById('strasse_grundstueck');
+            const flurstueckInput = document.getElementById('gemarkung');
+            const suggestionsList = document.getElementById('gemarkung-suggestions');
+
+            function suggestGemarkung() {
+                const plz = plzInput.value.trim();
+                const strasse = strasseInput.value.trim();
+
+                // On attend d'avoir au moins un code postal et un début de rue
+                if (plz.length < 4 || strasse.length < 3) return;
+
+                const query = `${strasse}, ${plz}`;
+                // Recherche Nominatim avec addressdetails pour récupérer le quartier (suburb/village)
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=1&countrycodes=de`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsList.innerHTML = ''; // Reset des suggestions
+                        
+                        if (data && data.length > 0) {
+                            const result = data[0];
+                            const addr = result.address;
+                            
+                            // On cherche les champs qui correspondent à une "Gemarkung" (division administrative locale)
+                            // L'ordre de priorité : Suburb > City District > Village > Town > City
+                            const candidates = [
+                                addr.suburb,
+                                addr.city_district, 
+                                addr.village, 
+                                addr.town,
+                                addr.city
+                            ].filter(val => val); // Garder les valeurs non nulles
+
+                            const uniqueCandidates = [...new Set(candidates)];
+
+                            uniqueCandidates.forEach(val => {
+                                const option = document.createElement('option');
+                                option.value = val; // Valeur suggérée
+                                option.label = "Gemarkung (vorgeschlagen)"; // Label optionnel
+                                suggestionsList.appendChild(option);
+                            });
+
+                            // Petit feedback visuel dans le placeholder si le champ est vide
+                            if(uniqueCandidates.length > 0 && !flurstueckInput.value) {
+                                flurstueckInput.placeholder = `Vorschlag: ${uniqueCandidates[0]}`;
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Erreur lors de la suggestion Gemarkung:", err));
+            }
+
+            // Écouter les changements. 'change' se déclenche quand le champ perd le focus, ce qui évite de spammer l'API à chaque lettre.
+            plzInput.addEventListener('change', suggestGemarkung);
+            strasseInput.addEventListener('change', suggestGemarkung);
+
+
+            // --- Logique de soumission de formulaire (existante) ---
+
+            const form = document.getElementById('baum-form');
+            const submitButton = document.getElementById('submit-button');
+
+            form.addEventListener('submit', handleFormSubmit);
+
+            async function handleFormSubmit(event) {
+                event.preventDefault(); // Empêcher l'envoi
+                
+                // Afficher l'état de chargement
+                const originalButtonText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Wird verarbeitet...';
+
+                try {
+                    const formData = new FormData(form);
+                    const data = {};
+                    const tableData = []; // Pour le PDF
+
+                    // 1. Récupérer les données du formulaire
+                    for (const [key, value] of formData.entries()) {
+                        data[key] = value;
+                        
+                        // Trouver le libellé (label) associé
+                        const el = form.elements[key];
+                        let labelText = key; // Fallback
+                        if (el) {
+                            const labelEl = document.querySelector(`label[for="${el.id}"]`);
+                            if (labelEl) {
+                                labelText = labelEl.textContent.replace(':', '');
+                            }
+                        }
+                        // Ne pas ajouter de lignes vides au PDF
+                        if(value) {
+                            tableData.push([labelText, value]);
+                        }
+                    }
+
+                    // 2. Géocodage
+                    const plz = data['plz_grundstueck'] || '';
+                    const strasse = data['strasse_grundstueck'] || '';
+                    const gemark = data['gemarkung'] || '';
+                    let coords = null;
+
+                    if (plz && strasse) {
+                        try {
+                            const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(strasse + ', ' + plz+ ', ' + gemark + ', Deutschland')}&limit=1`;
+                            const geoResponse = await fetch(geoUrl);
+                            const geoData = await geoResponse.json();
+                            if (geoData && geoData.length > 0) {
+                                coords = {
+                                    lat: parseFloat(geoData[0].lat),
+                                    lon: parseFloat(geoData[0].lon)
+                                };
+                                // Ajouter au PDF
+                                tableData.push(['Breitengrad (geschätzt)', coords.lat]);
+                                tableData.push(['Längengrad (geschätzt)', coords.lon]);
+                            }
+                        } catch (geoError) {
+                            console.error("Fehler beim Geocoding:", geoError);
+                            // Continuer sans coordonnées
+                        }
+                    }
+
+                    // 3. Générer le contenu des fichiers
+                    const pdfBlob = generatePDF(tableData);
+                    const geojsonString = generateGeoJSON(data, coords); 
+
+                    // 4. Créer le ZIP
+                    const zip = new JSZip();
+                    zip.file("antrag-baumfaellung.pdf", pdfBlob);
+                    zip.file("antrag.geojson", geojsonString); 
+
+                    // 5. Générer et télécharger le ZIP
+                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    downloadFile(zipBlob, 'antrag-paket.zip', 'application/zip');
+
+
+                } catch (error) {
+                    console.error("Fehler bei der Formularverarbeitung:", error);
+                    // Gérer l'erreur en affichant le message
+                } finally {
+                    // Rétablir le bouton
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            }
+
+            /**
+             * Génère un fichier PDF récapitulatif
+             * Retourne le PDF sous forme de Blob
+             */
+            function generatePDF(tableData) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                doc.setFontSize(18);
+                doc.text("Antrag auf Baumfällung - Zusammenfassung", 14, 22);
+                doc.setFontSize(11);
+                doc.setTextColor(100);
+                doc.text(`Antrag vom: ${new Date().toLocaleDateString('de-DE')}`, 14, 30);
+
+                doc.autoTable({
+                    head: [['Feld', 'Eingabe']],
+                    body: tableData,
+                    startY: 35,
+                    headStyles: { fillColor: [22, 160, 133] }, // Couleur d'en-tête
+                    styles: { cellPadding: 2, fontSize: 10 },
+                });
+
+                return doc.output('blob'); // retourne le Blob
+            }
+
+            /**
+             * Génère un fichier GeoJSON FeatureCollection
+             */
+            function generateGeoJSON(data, coords) {
+                // Création de la Feature unique
+                const feature = {
+                    "type": "Feature",
+                    "geometry": coords ? {
+                        "type": "Point",
+                        "coordinates": [coords.lon, coords.lat] // [longitude, latitude]
+                    } : null,
+                    "properties": {
+                        "label": `Antrag Baumfällung: ${data.baumart || 'N/A'}`,
+                        "issued": data.antrag_vom ? new Date(data.antrag_vom).toISOString() : new Date().toISOString(),
+                        ...data // Inclure toutes les autres données du formulaire
+                    }
+                };
+
+                // Création de la FeatureCollection
+                const featureCollection = {
+                    "type": "FeatureCollection",
+                    "features": [feature]
+                };
+
+                return JSON.stringify(featureCollection, null, 2); // Retourne le string
+            }
+
+            /**
+             * Fonction utilitaire pour télécharger un fichier
+             */
+            function downloadFile(content, fileName, mimeType) {
+                const a = document.createElement('a');
+                const blob = new Blob([content], { type: mimeType });
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }
+
+        });
+    </script>
+    <!-- FIN SCRIPT -->
+
+</body>
+</html>
